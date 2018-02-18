@@ -1,0 +1,14 @@
+<idea-plugin>
+  <id>com.pestretsov.KotlinStats</id>
+  <name>Kotlin File Stats</name>
+  <description>Kotlin File Stats Plugin</description>
+  <version>0.1</version>
+
+  <idea-version since-build="141.0"/>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <toolWindow id="Kotlin File Stats" secondary="true" anchor="right"
+                factoryClass="StatsToolWindowFactory"/>
+  </extensions>
+
+</idea-plugin>
