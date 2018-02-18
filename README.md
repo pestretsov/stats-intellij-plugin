@@ -24,7 +24,7 @@ Simple plugin for Intellij IDEA which counts Kotlin file statistics
 (https://www.jetbrains.com/help/idea/working-with-modules.html). Однако, в текущий документации я не 
 нашел ничего связанного с этим.
 
-**UPD (после дедлайна)**: нашел, что можно использовать `ModuleRootManager.getInstance(module).getFileIndex().isInTestSourceContent(file)` для этих целей.
+**UPD (после дедлайна)**: нашел, что можно использовать `ModuleRootManager.getInstance(module).getFileIndex().isInTestSourceContent(file)` для этих целей. Версия с использованием этого метода в ветке `after_deadline` (https://github.com/pestretsov/stats-intellij-plugin/tree/after_deadline)
 
 ## Пример работы плагина
 
