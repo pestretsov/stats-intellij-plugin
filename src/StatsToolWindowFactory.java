@@ -1,4 +1,6 @@
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
@@ -15,11 +17,13 @@ public class StatsToolWindowFactory implements ToolWindowFactory {
     private JLabel kotlinSourceLabel;
     private JLabel kotlinTestLabel;
     private JButton refreshStatsButton;
-    private ToolWindow myToolWindow;
+    private ProjectFileIndex projectFileIndex;
 
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         refreshStatsButton.addActionListener(e -> StatsToolWindowFactory.this.collectStatsAndUpdateInterface(project));
-        myToolWindow = toolWindow;
+
+        ProjectRootManager projectRootManager = ProjectRootManager.getInstance(project);
+        this.projectFileIndex = projectRootManager.getFileIndex();
 
         this.collectStatsAndUpdateInterface(project);
 
@@ -34,7 +38,7 @@ public class StatsToolWindowFactory implements ToolWindowFactory {
     }
 
     private StatsCollectingVisitor.Stats collectStats(Project project) {
-        StatsCollectingVisitor visitor = new StatsCollectingVisitor();
+        StatsCollectingVisitor visitor = new StatsCollectingVisitor(projectFileIndex);
         VfsUtilCore.visitChildrenRecursively(project.getBaseDir(), visitor);
 
         return visitor.getStats();
