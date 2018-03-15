@@ -1,21 +1,22 @@
+import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileVisitor;
 import org.jetbrains.annotations.NotNull;
 
-public class StatsCollectingVisitor extends VirtualFileVisitor<SourceFileType> {
+public class StatsCollectingVisitor extends VirtualFileVisitor {
     private static final String KOTLIN_EXT = "kt";
 
+    private ProjectFileIndex index;
     private Stats stats;
 
-    public StatsCollectingVisitor() {
-        stats = new Stats();
+    public StatsCollectingVisitor(ProjectFileIndex index) {
+        this.stats = new Stats();
+        this.index = index;
     }
 
     @Override
     public boolean visitFile(@NotNull VirtualFile file) {
-        if (file.isDirectory()) {
-            processDirectory(file);
-        } else {
+        if (!file.isDirectory()) {
             processFile(file);
         }
 
@@ -26,47 +27,26 @@ public class StatsCollectingVisitor extends VirtualFileVisitor<SourceFileType> {
         return stats;
     }
 
-    private void processDirectory(VirtualFile dir) {
-        switch (dir.getName()) {
-            case "test":
-                setValueForChildren(SourceFileType.TEST);
-                break;
-            case "main":
-                setValueForChildren(SourceFileType.SRC);
-                break;
-            case "src":
-                setValueForChildren(SourceFileType.SRC);
-                break;
-            default:
-                if (getCurrentValue() != null) {
-                    setValueForChildren(getCurrentValue());
-                } else {
-                    setValueForChildren(SourceFileType.OTHER);
-                }
-                break;
-        }
-    }
-
     private void processFile(VirtualFile file) {
-        if (isTestFile() && isKotlinFile(file)) {
+        if (isTestFile(file) && isKotlinFile(file)) {
             stats.kotlinTestFiles++;
             stats.totalTestFiles++;
-        } else if (isTestFile()) {
+        } else if (isTestFile(file)) {
             stats.totalTestFiles++;
         } else if (isKotlinFile(file)) {
             stats.kotlinSourceFiles++;
             stats.totalSourceFiles++;
-        } else if (isSourceFile()) {
+        } else if (isSourceFile(file)) {
             stats.totalSourceFiles++;
         }
     }
 
-    private boolean isSourceFile() {
-        return getCurrentValue() == SourceFileType.SRC;
+    private boolean isSourceFile(VirtualFile file) {
+        return index.isInSource(file);
     }
 
-    private boolean isTestFile() {
-        return getCurrentValue() == SourceFileType.TEST;
+    private boolean isTestFile(VirtualFile file) {
+        return index.isInTestSourceContent(file);
     }
 
     private boolean isKotlinFile(VirtualFile file) {
